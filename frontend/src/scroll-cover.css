@@ -1,0 +1,26 @@
+.scroll-cover{height:180svh;background:#1b1717;position:relative}
+.cover-pin{position:sticky;top:0;height:100svh;padding:16px;overflow:hidden}
+.cover-scene{height:100%;position:relative;isolation:isolate;overflow:hidden;background:#630000;color:#edebdd;border-radius:16px;transform-origin:center}
+.cover-top,.cover-bottom{position:absolute;left:36px;right:36px;display:flex;justify-content:space-between;align-items:center;gap:20px;z-index:3;font:10px var(--font-sans);letter-spacing:.15em}
+.cover-top{top:28px}.cover-top>span{font-size:13px;font-weight:700;letter-spacing:.05em}
+.cover-top button{background:#edebdd;color:#630000;border-radius:30px;padding:14px 22px;font-size:12px;font-weight:650;letter-spacing:0;transition:background .2s}
+.cover-top button:hover{background:#d7c4b2}.cover-top button span{margin-left:20px}
+.cover-bottom{bottom:28px;border-top:1px solid #edebdd38;padding-top:20px;font-size:9px}
+.cover-title{position:absolute;z-index:2;left:6%;right:6%;top:27%;transform-origin:left center}
+.cover-title>p{font-size:10px;letter-spacing:.2em;margin-bottom:22px}
+.cover-title h1{font-family:var(--font-sans);font-weight:500;font-size:clamp(38px,6.6vw,104px);line-height:1.02;letter-spacing:-.06em}
+.cover-title h1 em{font-family:var(--font-display);font-weight:400;font-size:1.2em;letter-spacing:-.025em}
+.cover-description{font-size:12px;line-height:1.9;margin-top:26px;color:#e2c9bb}
+.cover-art{position:absolute;right:-7%;top:-10%;height:115%;width:70%;color:#edebdd;opacity:.16;z-index:0}
+.cover-wordmark{position:absolute;bottom:10%;left:0;white-space:nowrap;font-size:clamp(50px,9vw,160px);font-weight:700;letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1px #edebdd24;z-index:1;pointer-events:none}
+.cover-static{height:100svh}.cover-static .cover-pin{position:relative}
+#workspace-shell{scroll-margin-top:0;outline:none}
+@media(max-width:600px){.cover-pin{padding:8px}.cover-top,.cover-bottom{left:22px;right:22px}.cover-top>span{font-size:10px}.cover-top button{padding:11px 14px;font-size:10px}.cover-title{top:30%;left:7%;right:5%}.cover-title h1{font-size:clamp(32px,8vw,48px)}.cover-title>p{font-size:8px}.cover-bottom span:first-child{display:none}.cover-bottom{font-size:8px}.cover-art{width:120%;right:-40%}.cover-description{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.scroll-cover{height:100svh}.cover-pin{position:relative}}
+/* Keep the cover atmospheric while leaving the message unobstructed. */
+.cover-art{opacity:.09;right:-15%}
+.cover-wordmark{-webkit-text-stroke-color:#edebdd12;bottom:8%;font-size:clamp(44px,7vw,110px)}
+.cover-description{max-width:45ch;font-size:13px;line-height:1.9}
+.cover-bottom{letter-spacing:.08em}
+@media(max-width:600px){.cover-art{opacity:.07;right:-45%}.cover-wordmark{display:none}.cover-description{font-size:12px}}
+.cover-title h1 em{font-weight:500;font-size:1.08em;letter-spacing:-.04em}

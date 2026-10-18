@@ -18,6 +18,8 @@ The original implementation is by [Vedhanth Krishnan](https://github.com/vedhant
 - Bounded multi-hop investigation with observed paths, decision traces, and JSON trail export.
 - Browser-local saved investigations and analyst notes, plus casebook export.
 - Dataset timeline and neighbor-label comparison charts.
+- A cotton, cherry-red, maroon and noir interface with bundled open-source fonts,
+  a scroll-responsive cover, reduced-motion support and compact investigation controls.
 
 Research labels and model scores are investigative signals, not proof of wrongdoing.
 The copilot is a deterministic evidence assistant with explicit supported tools;
@@ -382,8 +384,19 @@ participant eligibility or when all development began.
 
 ### Submission status
 
-The repository includes complete local setup instructions, graph schema, queries,
-model evaluation, tests, and a demonstration script in `DEMO.md`. A public repository
-containing this continuation and a recorded working-demo URL must be supplied by
-the entrant before submission. GitHub Actions is configured; a successful hosted
-run is only established after pushing and observing the workflow.
+The public source repository is https://github.com/vedhanthkrishnan/FraudWeave.
+It includes complete local setup instructions, graph schema, queries, model
+evaluation and tests. A deployed service is not included; follow the local setup.
+The entrant must upload a working demo video and supply its accessible URL in the
+official submission panel, naming Track 1. No demo-video URL has been supplied yet.
+
+Official requirements: https://www.wemakedevs.org/hackathons/falkordb/rules.
+The published deadline is October 18, 2026 at 11:59 PM IST. The team must verify
+that its main coding and design work meets the event's start-date rule and be able
+to explain its own contributions. Existing repository history and attribution are
+preserved; this README does not certify eligibility.
+
+### Bundled typography
+
+Manrope and Cormorant Garamond are bundled locally, with their SIL Open Font
+License notices in `frontend/src/assets/fonts/`. No Canva font files are used.

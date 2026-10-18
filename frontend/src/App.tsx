@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import InvestigationWorkspace from './InvestigationWorkspace'
 import './premium.css'
 import SystemPanel from './SystemPanel'
+import ScrollCover from './ScrollCover'
+import { ReadingProgress } from './VisualAccents'
 import { motion, MotionConfig } from 'motion/react'
 import {
   Activity,
@@ -112,9 +114,9 @@ function MetricCard({
       transition={{ duration: 0.45, delay }}
       whileHover={{
         y: -4,
-        borderColor: 'rgba(214,184,120,0.32)',
+        borderColor: 'rgba(237,235,221,0.28)',
       }}
-      className="group rounded-xl border border-white/[0.075] bg-[#10151e] p-5 transition-colors"
+      className="group rounded-xl border border-white/[0.075] bg-[#241f1f] p-5 transition-colors"
     >
       <div className="mb-5 flex items-start justify-between">
         <span className="text-[12px] text-slate-400">{label}</span>
@@ -123,7 +125,7 @@ function MetricCard({
         </span>
       </div>
       <div className="flex items-end justify-between gap-2">
-        <span className="text-2xl font-semibold tracking-tight text-[#f3f0e8] sm:text-[29px]">
+        <span className="text-2xl font-semibold tracking-tight text-[#edebdd] sm:text-[29px]">
           {value}
         </span>
       </div>
@@ -160,18 +162,18 @@ function LabelDistribution({ stats }: { stats: FraudWeaveStats | null }) {
   const total = stats?.total_transactions ?? 0
 
   return (
-    <div className="rounded-xl border border-white/[0.07] bg-[#10151e] p-5">
+    <div className="rounded-xl border border-white/[0.07] bg-[#241f1f] p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-[11px] text-slate-400">Dataset label distribution</div>
-          <div className="mt-2 text-2xl font-semibold tracking-tight text-[#f3f0e8]">
+          <div className="mt-2 text-2xl font-semibold tracking-tight text-[#edebdd]">
             {formatNumber(total)}
           </div>
           <div className="mt-1 text-[10px] text-slate-500">
             Research dataset records
           </div>
         </div>
-        <div className="rounded-lg border border-[#d6b878]/15 bg-[#d6b878]/[0.06] p-2.5 text-[#d6b878]">
+        <div className="rounded-lg border border-[#b7a28c]/15 bg-[#b7a28c]/[0.06] p-2.5 text-[#b7a28c]">
           <Activity size={17} />
         </div>
       </div>
@@ -310,16 +312,18 @@ function App() {
   const apiConnected = apiStatus === 'connected'
 
   return (
-    <MotionConfig reducedMotion="user"><div className={`premium-app min-h-screen bg-[#080b12] text-[#f3f0e8] ${collapsed ? 'sidebar-collapsed' : ''}`} >
-      <div className="flex min-h-screen">
-        <aside aria-label="Primary navigation" className="sticky top-0 hidden h-screen w-[232px] shrink-0 flex-col overflow-y-auto border-r border-white/[0.07] bg-[#0b0f17] lg:flex">
+    <MotionConfig reducedMotion="user"><div className={`premium-app min-h-screen bg-[#1b1717] text-[#edebdd] ${collapsed ? 'sidebar-collapsed' : ''}`} >
+      <ReadingProgress />
+      <ScrollCover />
+      <div id="workspace-shell" tabIndex={-1} className="flex min-h-screen">
+        <aside aria-label="Primary navigation" className="sticky top-0 hidden h-screen w-[232px] shrink-0 flex-col overflow-y-auto border-r border-white/[0.07] bg-[#171313] lg:flex">
           <div className="flex h-[76px] items-center gap-3 border-b border-white/[0.07] px-6">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#d6b878]/30 bg-[#d6b878]/[0.08] text-[#d6b878]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#b7a28c]/30 bg-[#b7a28c]/[0.08] text-[#b7a28c]">
               <Waypoints size={20} strokeWidth={1.6} />
             </div>
             <div>
               <div className="text-[15px] font-semibold tracking-[0.04em]">
-                FRAUD<span className="text-[#d6b878]">WEAVE</span>
+                FRAUD<span className="text-[#b7a28c]">WEAVE</span>
               </div>
               <div className="mt-0.5 text-[9px] uppercase tracking-[0.2em] text-slate-500">
                 On-chain intelligence
@@ -342,7 +346,7 @@ function App() {
                   onClick={() => setActiveNav(label)}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[12px] transition-all ${
                     activeNav === label
-                      ? 'border border-[#d6b878]/15 bg-[#d6b878]/[0.08] text-[#e4c987]'
+                      ? 'border border-[#b7a28c]/15 bg-[#b7a28c]/[0.08] text-[#edebdd]'
                       : 'border border-transparent text-slate-400 hover:bg-white/[0.035] hover:text-slate-200'
                   }`}
                 >
@@ -384,7 +388,7 @@ function App() {
 
           <div className="mt-auto border-t border-white/[0.07] p-4">
             <div className="flex items-center gap-3 rounded-lg p-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#1b2432] text-[11px] font-medium text-[#d6b878]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#302727] text-[11px] font-medium text-[#b7a28c]">
                 FW
               </div>
               <div className="min-w-0 flex-1">
@@ -401,9 +405,9 @@ function App() {
         </aside>
 
         <main className="min-w-0 flex-1">
-          <header className="sticky top-0 z-20 flex h-[76px] items-center justify-between gap-4 border-b border-white/[0.07] bg-[#080b12]/90 px-5 backdrop-blur-xl sm:px-8">
+          <header className="sticky top-0 z-20 flex h-[76px] items-center justify-between gap-4 border-b border-white/[0.07] bg-[#1b1717]/90 px-5 backdrop-blur-xl sm:px-8">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#d6b878]/25 bg-[#d6b878]/[0.07] text-[#d6b878] lg:hidden">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#b7a28c]/25 bg-[#b7a28c]/[0.07] text-[#b7a28c] lg:hidden">
                 <Waypoints size={17} />
               </div>
               <div className="min-w-0">
@@ -443,7 +447,7 @@ function App() {
                 aria-label="Refresh dashboard statistics"
                 onClick={() => { setRefreshing(true); void loadData(); setWorkspaceRefresh(value => value + 1) }}
                 disabled={refreshing}
-                className="flex items-center gap-2 rounded-lg border border-[#d6b878]/25 bg-[#d6b878]/[0.07] px-3 py-2.5 text-[11px] font-medium text-[#e6ce98] transition hover:bg-[#d6b878]/[0.13] disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg border border-[#b7a28c]/25 bg-[#b7a28c]/[0.07] px-3 py-2.5 text-[11px] font-medium text-[#edebdd] transition hover:bg-[#b7a28c]/[0.13] disabled:opacity-50"
               >
                 <RefreshCw
                   size={13}
@@ -454,12 +458,12 @@ function App() {
             </div>
           </header>
           <nav aria-label="Mobile workspace navigation" className="flex gap-2 overflow-x-auto border-b border-white/[0.07] px-5 py-3 lg:hidden">
-            {navItems.map(({label}) => <button key={label} onClick={() => setActiveNav(label)} aria-current={activeNav === label ? 'page' : undefined} className={`shrink-0 rounded-lg px-3 py-2 text-[11px] ${activeNav === label ? 'bg-[#d6b878]/10 text-[#e4c987]' : 'text-slate-400'}`}>{label}</button>)}
+            {navItems.map(({label}) => <button key={label} onClick={() => setActiveNav(label)} aria-current={activeNav === label ? 'page' : undefined} className={`shrink-0 rounded-lg px-3 py-2 text-[11px] ${activeNav === label ? 'bg-[#b7a28c]/10 text-[#edebdd]' : 'text-slate-400'}`}>{label}</button>)}
           </nav>
 
           {showAlerts && (
-            <div className="mx-5 mt-4 rounded-xl border border-[#d6b878]/20 bg-[#d6b878]/[0.05] p-4 sm:mx-8">
-              <div className="flex items-center gap-2 text-sm text-[#e6ce98]">
+            <div className="mx-5 mt-4 rounded-xl border border-[#b7a28c]/20 bg-[#b7a28c]/[0.05] p-4 sm:mx-8">
+              <div className="flex items-center gap-2 text-sm text-[#edebdd]">
                 <Bell size={15} />
                 Data and research notices
               </div>
@@ -485,8 +489,8 @@ function App() {
               <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end">
                 <div>
                   <div className="mb-3 flex items-center gap-2">
-                    <span className="h-px w-6 bg-[#d6b878]" />
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#d6b878]">
+                    <span className="h-px w-6 bg-[#b7a28c]" />
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#b7a28c]">
                       Financial crime intelligence
                     </span>
                   </div>
@@ -530,7 +534,7 @@ function App() {
 
                   <button
                     onClick={() => { setActiveNav('Transaction graph'); document.getElementById('investigation-workspace')?.scrollIntoView({ behavior: 'smooth' }) }}
-                    className="flex items-center gap-2 rounded-lg bg-[#d6b878] px-4 py-2.5 text-[11px] font-semibold text-[#14130f] transition hover:bg-[#e6cc91]"
+                    className="hero-cta flex items-center gap-2 rounded-lg bg-[#b7a28c] px-4 py-2.5 text-[11px] font-semibold text-[#14130f] transition hover:bg-[#d7c4b2]"
                   >
                     <Network size={14} />
                     Open graph explorer
@@ -546,7 +550,7 @@ function App() {
                 value={formatNumber(stats?.total_transactions)}
                 detail={apiConnected ? 'Loaded from FalkorDB' : 'Waiting for API data'}
                 icon={Activity}
-                accent="text-[#d6b878]"
+                accent="text-[#b7a28c]"
                 delay={0.05}
               />
               <MetricCard
@@ -587,13 +591,13 @@ function App() {
               <div className="flex min-w-0 flex-col gap-4">
                 <SectionLabel>Database status</SectionLabel>
 
-                <div className="rounded-xl border border-white/[0.07] bg-[#10151e] p-5">
+                <div className="rounded-xl border border-white/[0.07] bg-[#241f1f] p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-[11px] text-slate-400">
                         Database health
                       </div>
-                      <div className="mt-3 flex items-center gap-2 text-lg font-medium text-[#f3f0e8]">
+                      <div className="mt-3 flex items-center gap-2 text-lg font-medium text-[#edebdd]">
                         {apiConnected ? (
                           <ShieldCheck size={19} className="text-emerald-300" />
                         ) : (
@@ -663,7 +667,7 @@ function App() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-[#10151e] px-3 py-2">
+                  <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-[#241f1f] px-3 py-2">
                     <Search size={14} className="text-slate-500" />
                     <input
                       value={search}
@@ -674,7 +678,7 @@ function App() {
                     />
                   </div>
 
-                  <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-[#10151e] px-2.5">
+                  <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-[#241f1f] px-2.5">
                     <SlidersHorizontal size={13} className="text-slate-500" />
                     <select
                       value={selectedFilter}
@@ -682,16 +686,16 @@ function App() {
                       onChange={(event) => setSelectedFilter(event.target.value)}
                       className="bg-transparent py-2 text-[11px] text-slate-300 outline-none"
                     >
-                      <option className="bg-[#10151e]">All records</option>
-                      <option className="bg-[#10151e]">Illicit-labelled</option>
-                      <option className="bg-[#10151e]">Licit-labelled</option>
-                      <option className="bg-[#10151e]">Unknown</option>
+                      <option className="bg-[#241f1f]">All records</option>
+                      <option className="bg-[#241f1f]">Illicit-labelled</option>
+                      <option className="bg-[#241f1f]">Licit-labelled</option>
+                      <option className="bg-[#241f1f]">Unknown</option>
                     </select>
                   </div>
 
                   <button
                     onClick={() => void loadSampleTransaction()}
-                    className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-[#10151e] px-3 py-2 text-[11px] text-slate-300 transition hover:bg-white/[0.05]"
+                    className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-[#241f1f] px-3 py-2 text-[11px] text-slate-300 transition hover:bg-white/[0.05]"
                   >
                     <RefreshCw size={13} />
                     Reload sample
@@ -699,7 +703,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto rounded-xl border border-white/[0.07] bg-[#10151e]">
+              <div className="overflow-x-auto rounded-xl border border-white/[0.07] bg-[#241f1f]">
                 <table className="w-full min-w-[700px] text-left">
                   <thead>
                     <tr className="border-b border-white/[0.07] text-[9px] uppercase tracking-[0.16em] text-slate-500">
@@ -773,10 +777,10 @@ function App() {
               </div>
 
               {selectedTransaction && (
-                <div className="mt-4 rounded-xl border border-white/[0.07] bg-[#10151e] p-5">
+                <div className="mt-4 rounded-xl border border-white/[0.07] bg-[#241f1f] p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <div className="text-[10px] uppercase tracking-[0.18em] text-[#d6b878]">
+                      <div className="text-[10px] uppercase tracking-[0.18em] text-[#b7a28c]">
                         Selected transaction
                       </div>
                       <div className="mt-2 break-all font-mono text-lg text-slate-100">
@@ -805,7 +809,7 @@ function App() {
                         <ArrowDownRight size={13} />
                         Loaded incoming neighbors (max 20)
                       </div>
-                      <div className="mt-2 text-xl font-semibold text-[#f3f0e8]">
+                      <div className="mt-2 text-xl font-semibold text-[#edebdd]">
                         {neighbors.filter((item) => item.direction === 'Incoming').length}
                       </div>
                     </div>
@@ -814,7 +818,7 @@ function App() {
                         <ArrowUpRight size={13} />
                         Loaded outgoing neighbors (max 20)
                       </div>
-                      <div className="mt-2 text-xl font-semibold text-[#f3f0e8]">
+                      <div className="mt-2 text-xl font-semibold text-[#edebdd]">
                         {neighbors.filter((item) => item.direction === 'Outgoing').length}
                       </div>
                     </div>
@@ -825,7 +829,7 @@ function App() {
 
             <footer className="flex flex-col justify-between gap-2 border-t border-white/[0.07] py-5 text-[10px] text-slate-600 sm:flex-row sm:items-center">
               <span className="flex items-center gap-2">
-                <Sparkles size={12} className="text-[#d6b878]" />
+                <Sparkles size={12} className="text-[#b7a28c]" />
                 FRAUDWEAVE
                 <span className="text-slate-700">/</span>
                 Bitcoin transaction intelligence

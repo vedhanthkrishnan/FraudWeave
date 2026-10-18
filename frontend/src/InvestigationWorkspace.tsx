@@ -320,17 +320,17 @@ export default function InvestigationWorkspace({
         {
           label: 'Illicit-labelled',
           count: data.risk.neighbor_labels.illicit_labelled,
-          fill: '#fb7185',
+          fill: '#cf837c',
         },
         {
           label: 'Licit-labelled',
           count: data.risk.neighbor_labels.licit_labelled,
-          fill: '#6ee7b7',
+          fill: '#edebdd',
         },
         {
           label: 'Unknown',
           count: data.risk.neighbor_labels.unknown,
-          fill: '#d6b878',
+          fill: '#b7a28c',
         },
       ]
     : []
@@ -341,7 +341,6 @@ export default function InvestigationWorkspace({
       className={`investigation-workspace ${immersive ? 'immersive-workspace' : ''}`}
       aria-label="Investigation workspace"
     >
-      <div className="context-toolbar"><span>FALKORDB / ELLIPTIC RESEARCH</span><div><button className="fw-button" aria-pressed={immersive} onClick={() => setImmersive(!immersive)}>{immersive ? 'Exit focus layout' : 'Focus layout'}</button><button ref={assistantTrigger} className="fw-button gold" aria-expanded={copilotOpen} aria-controls="copilot-panel" onClick={() => setCopilotOpen(!copilotOpen)}><MessageSquare size={14}/> Evidence copilot</button></div></div>
       <div className="workspace-heading">
         <div>
           <span className="eyebrow">INVESTIGATION WORKSPACE</span>
@@ -349,13 +348,14 @@ export default function InvestigationWorkspace({
             {activeNav === 'Overview' ? 'Follow the evidence' : activeNav}
           </h2>
           <p>
-            Explore historical Bitcoin transactions · Elliptic research data
+            Search a transaction, explore its connections, then review the evidence.
           </p>
         </div>
         <span className="source-badge">
           <ShieldCheck size={14} /> Read-only graph tools
         </span>
       </div>
+      <div className="context-toolbar"><span>WORKSPACE TOOLS</span><div><button className="fw-button" aria-pressed={immersive} onClick={() => setImmersive(!immersive)}>{immersive ? 'Exit focus layout' : 'Focus layout'}</button><button ref={assistantTrigger} className="fw-button" aria-expanded={copilotOpen} aria-controls="copilot-panel" onClick={() => setCopilotOpen(!copilotOpen)}><MessageSquare size={14}/> Evidence copilot</button></div></div>
       <form
         className="investigation-search"
         onSubmit={(event) => {
@@ -368,11 +368,13 @@ export default function InvestigationWorkspace({
         }}
       >
         <label htmlFor="transaction-id">Transaction ID</label>
+        <p className="search-guidance" id="transaction-guidance">Start with the loaded example, or enter another Elliptic transaction ID.</p>
         <div className="search-row">
           <div className="search-field">
             <Search size={16} />
             <input
               id="transaction-id"
+              aria-describedby="transaction-guidance"
               inputMode="numeric"
               value={input}
               onChange={(event) => setInput(event.target.value)}
@@ -385,6 +387,8 @@ export default function InvestigationWorkspace({
           </button>
         </div>
       </form>
+      <details className="discovery-disclosure">
+        <summary>Browse example transactions <span>Choose from the dataset</span></summary>
       <div className="discovery-row">
         <span>Browse dataset</span>
         <select
@@ -410,6 +414,7 @@ export default function InvestigationWorkspace({
           ))}
         </div>
       </div>
+      </details>
       {notice && (
         <div className="fw-notice" role="status">
           {notice}
@@ -480,7 +485,7 @@ export default function InvestigationWorkspace({
             <span>◆ Illicit-labelled</span>
             <span>● Licit-labelled</span>
             <span>■ Unknown</span>
-            <span>→ Bitcoin flow</span><span>White outline: selected</span><span>Cyan: incoming · violet: outgoing</span>
+            <span>→ Bitcoin flow</span><span>White outline: selected</span><span>Cotton: incoming · rose: outgoing</span>
           </div>
           {graph ? (
             <>

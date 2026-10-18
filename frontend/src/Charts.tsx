@@ -26,23 +26,23 @@ export function NeighborChart({
     >
       <ResponsiveContainer width="100%" height={185}>
         <BarChart data={data} layout="vertical" margin={{ left: 5, right: 20 }}>
-          <CartesianGrid stroke="#263040" horizontal={false} />
+          <CartesianGrid stroke="#443636" horizontal={false} />
           <XAxis
             type="number"
             allowDecimals={false}
-            tick={{ fill: '#94a3b8', fontSize: 10 }}
+            tick={{ fill: '#b8aaa0', fontSize: 10 }}
           />
           <YAxis
             type="category"
             dataKey="label"
             width={105}
-            tick={{ fill: '#cbd5e1', fontSize: 10 }}
+            tick={{ fill: '#d7d0c5', fontSize: 10 }}
           />
           <Tooltip
             contentStyle={{
-              background: '#121b28',
-              border: '1px solid #334155',
-              color: '#f1f5f9',
+              background: '#302727',
+              border: '1px solid #5d4b49',
+              color: '#edebdd',
             }}
           />
           <Bar isAnimationActive={!reduced} dataKey="count" radius={[0, 4, 4, 0]} />
@@ -71,35 +71,35 @@ export function TimelineChart({
     >
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data}>
-          <CartesianGrid stroke="#263040" />
-          <XAxis dataKey="time_step" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-          <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
+          <CartesianGrid stroke="#443636" />
+          <XAxis dataKey="time_step" tick={{ fill: '#b8aaa0', fontSize: 10 }} />
+          <YAxis tick={{ fill: '#b8aaa0', fontSize: 10 }} />
           <Tooltip
             contentStyle={{
-              background: '#121b28',
-              border: '1px solid #334155',
+              background: '#302727',
+              border: '1px solid #5d4b49',
             }}
           />
           <Legend />
           <Area isAnimationActive={!reduced}
             dataKey="unknown"
             stackId="1"
-            fill="#d6b878"
-            stroke="#d6b878"
+            fill="#b7a28c"
+            stroke="#b7a28c"
             fillOpacity={0.3}
           />
           <Area isAnimationActive={!reduced}
             dataKey="licit_labelled"
             stackId="1"
-            fill="#6ee7b7"
-            stroke="#6ee7b7"
+            fill="#edebdd"
+            stroke="#edebdd"
             fillOpacity={0.5}
           />
           <Area isAnimationActive={!reduced}
             dataKey="illicit_labelled"
             stackId="1"
-            fill="#fb7185"
-            stroke="#fb7185"
+            fill="#cf837c"
+            stroke="#cf837c"
           />
         </AreaChart>
       </ResponsiveContainer>
