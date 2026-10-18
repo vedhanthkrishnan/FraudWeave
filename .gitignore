@@ -1,0 +1,30 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Environment secrets
+.env
+
+# Dataset files
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Frontend dependencies and build output
+node_modules/
+dist/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
