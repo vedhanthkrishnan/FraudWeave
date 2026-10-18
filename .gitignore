@@ -12,6 +12,9 @@ data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+elliptic_txs_*.csv
+*.rdb
+*.aof
 
 # Frontend dependencies and build output
 node_modules/
@@ -28,3 +31,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Local trained artifacts and investigation exports
+models/*.joblib
+reports/

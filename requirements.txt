@@ -1,0 +1,14 @@
+# API and graph database client
+fastapi==0.143.3
+uvicorn==0.54.0
+falkordb==1.8.0
+python-dotenv==1.2.4
+
+# Existing dataset inspection and ingestion scripts
+pandas==3.0.6
+
+# Local research-label baseline and inference
+scikit-learn==1.9.1
+joblib==1.6.0
+numpy==2.5.4
+threadpoolctl==3.7.0

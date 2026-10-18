@@ -1,6 +1,7 @@
 
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import InvestigationWorkspace from './InvestigationWorkspace'
 import { motion } from 'motion/react'
 import {
   Activity,
@@ -10,7 +11,6 @@ import {
   ChevronDown,
   CircleHelp,
   Command,
-  Download,
   Fingerprint,
   GitBranch,
   LayoutDashboard,
@@ -22,7 +22,6 @@ import {
   Sparkles,
   Target,
   Waypoints,
-  Zap,
   RefreshCw,
   Database,
   AlertTriangle,
@@ -33,8 +32,8 @@ import type { LucideIcon } from 'lucide-react'
 import {
   getHealth,
   getStats,
-  getTransaction,
-  getTransactionNeighbors,
+  API_BASE_URL,
+  type Evidence,
   type FraudWeaveStats,
   type Neighbor,
   type Transaction,
@@ -44,37 +43,9 @@ const SAMPLE_TX_ID = '230425980'
 
 type ApiStatus = 'checking' | 'connected' | 'error'
 
-type GraphNode = {
-  x: number
-  y: number
-  r: number
-  type: 'normal' | 'risk' | 'alert'
+type DirectedNeighbor = Neighbor & {
+  direction: 'Incoming' | 'Outgoing'
 }
-
-const graphNodes: GraphNode[] = [
-  { x: 65, y: 110, r: 7, type: 'normal' },
-  { x: 132, y: 66, r: 9, type: 'normal' },
-  { x: 190, y: 128, r: 15, type: 'risk' },
-  { x: 270, y: 54, r: 8, type: 'normal' },
-  { x: 326, y: 125, r: 12, type: 'alert' },
-  { x: 410, y: 79, r: 7, type: 'normal' },
-  { x: 468, y: 155, r: 11, type: 'risk' },
-  { x: 540, y: 92, r: 8, type: 'normal' },
-  { x: 604, y: 138, r: 14, type: 'alert' },
-  { x: 114, y: 211, r: 6, type: 'normal' },
-  { x: 223, y: 235, r: 9, type: 'normal' },
-  { x: 307, y: 202, r: 7, type: 'normal' },
-  { x: 388, y: 242, r: 13, type: 'risk' },
-  { x: 506, y: 235, r: 6, type: 'normal' },
-  { x: 574, y: 207, r: 8, type: 'normal' },
-]
-
-const graphEdges = [
-  [0, 1], [0, 9], [1, 2], [1, 3], [2, 3], [2, 4], [2, 10],
-  [3, 4], [3, 5], [4, 5], [4, 6], [4, 11], [5, 6], [5, 7],
-  [6, 7], [6, 12], [7, 8], [7, 13], [8, 14], [9, 10],
-  [10, 11], [10, 12], [11, 12], [12, 13], [13, 14],
-]
 
 const navItems: { label: string; icon: LucideIcon }[] = [
   { label: 'Overview', icon: LayoutDashboard },
@@ -158,138 +129,6 @@ function MetricCard({
         {detail}
       </div>
     </motion.div>
-  )
-}
-
-function NetworkGraph() {
-  return (
-    <div className="overflow-hidden rounded-xl border border-white/[0.07] bg-[#10151e]">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
-        <div>
-          <div className="text-[12px] font-medium text-slate-200">
-            Transaction relationship map
-          </div>
-          <div className="mt-1 text-[10px] text-slate-500">
-            Illustrative network · not a live graph query
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-3 text-[9px] text-slate-400">
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-sky-300" />
-            Standard
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-amber-300" />
-            Review
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-rose-400" />
-            Attention
-          </span>
-        </div>
-      </div>
-
-      <div className="relative p-3 sm:p-5">
-        <div className="pointer-events-none absolute inset-0 opacity-40">
-          <div
-            className="h-full w-full"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle, rgba(148,163,184,0.16) 1px, transparent 1px)',
-              backgroundSize: '22px 22px',
-            }}
-          />
-        </div>
-
-        <svg
-          viewBox="0 0 670 290"
-          className="relative z-10 w-full"
-          role="img"
-          aria-label="Illustrative transaction network diagram"
-        >
-          <defs>
-            <linearGradient id="edgeGradient" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#64748b" stopOpacity=".45" />
-              <stop offset="100%" stopColor="#d6b878" stopOpacity=".25" />
-            </linearGradient>
-            <filter id="nodeGlow">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-
-          {graphEdges.map(([from, to], index) => (
-            <line
-              key={`${from}-${to}`}
-              x1={graphNodes[from].x}
-              y1={graphNodes[from].y}
-              x2={graphNodes[to].x}
-              y2={graphNodes[to].y}
-              stroke="url(#edgeGradient)"
-              strokeWidth={index % 4 === 0 ? 1.5 : 1}
-              strokeOpacity=".85"
-            />
-          ))}
-
-          {graphNodes.map((node, index) => {
-            const color =
-              node.type === 'risk'
-                ? '#d6b878'
-                : node.type === 'alert'
-                  ? '#fb7185'
-                  : '#7dd3fc'
-
-            return (
-              <g key={index}>
-                {(node.type === 'risk' || node.type === 'alert') && (
-                  <circle
-                    cx={node.x}
-                    cy={node.y}
-                    r={node.r + 7}
-                    fill={color}
-                    opacity=".08"
-                  />
-                )}
-                <circle
-                  cx={node.x}
-                  cy={node.y}
-                  r={node.r}
-                  fill={color}
-                  fillOpacity=".18"
-                  stroke={color}
-                  strokeWidth="1.4"
-                  filter={node.type === 'alert' ? 'url(#nodeGlow)' : undefined}
-                />
-                <circle
-                  cx={node.x}
-                  cy={node.y}
-                  r="2"
-                  fill={color}
-                />
-              </g>
-            )
-          })}
-
-          <g transform="translate(15 265)">
-            <circle r="3" fill="#d6b878" />
-            <text x="10" y="4" fill="#94a3b8" fontSize="9">
-              Relationship structure is illustrative
-            </text>
-          </g>
-        </svg>
-
-        <div className="relative z-10 mt-1 flex items-center justify-between border-t border-white/[0.06] pt-3 text-[10px] text-slate-500">
-          <span>Network topology preview</span>
-          <span className="flex items-center gap-1.5">
-            <CircleHelp size={12} />
-            Live graph rendering pending
-          </span>
-        </div>
-      </div>
-    </div>
   )
 }
 
@@ -383,12 +222,10 @@ function App() {
   const [refreshing, setRefreshing] = useState(false)
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null)
-  const [neighbors, setNeighbors] = useState<Neighbor[]>([])
-  const [transactionError, setTransactionError] = useState<string | null>(null)
+  const [neighbors, setNeighbors] = useState<DirectedNeighbor[]>([])
+  const [workspaceRefresh, setWorkspaceRefresh] = useState(0)
 
-  const loadData = async (showLoading = false) => {
-    if (showLoading) setRefreshing(true)
-
+  const loadData = async () => {
     try {
       const [health, liveStats] = await Promise.all([
         getHealth(),
@@ -406,48 +243,31 @@ function App() {
         setApiStatus('error')
       }
     } catch {
+      setStats(null)
       setApiStatus('error')
     } finally {
-      if (showLoading) setRefreshing(false)
+      setRefreshing(false)
     }
   }
 
-  const loadSampleTransaction = async () => {
-    setTransactionError(null)
-
-    try {
-      const [result, neighborResult] = await Promise.all([
-        getTransaction(SAMPLE_TX_ID),
-        getTransactionNeighbors(SAMPLE_TX_ID, 10),
-      ])
-
-      setSelectedTransaction(result.transaction)
-      setNeighbors([
-        ...neighborResult.incoming.map((item) => ({
-          ...item,
-          direction: 'Incoming',
-        })),
-        ...neighborResult.outgoing.map((item) => ({
-          ...item,
-          direction: 'Outgoing',
-        })),
-      ])
-    } catch {
-      setTransactionError(
-        'Could not load transaction details. Check that the API and database are running.',
-      )
-    }
-  }
+  const loadSampleTransaction = () => setWorkspaceRefresh(value => value + 1)
+  const onSelection = useCallback((evidence: Evidence | null) => {
+    if (!evidence) { setSelectedTransaction(null); setNeighbors([]); return }
+    setSelectedTransaction(evidence.transaction)
+    setNeighbors([
+      ...evidence.neighbors.incoming.map(item => ({ ...item, direction: 'Incoming' as const })),
+      ...evidence.neighbors.outgoing.map(item => ({ ...item, direction: 'Outgoing' as const })),
+    ])
+  }, [])
 
   useEffect(() => {
-    void loadData()
-    void loadSampleTransaction()
+    const initialRefresh = window.setTimeout(() => { void loadData() }, 0)
 
     const interval = window.setInterval(() => {
       void loadData()
     }, 30000)
 
-    return () => window.clearInterval(interval)
+    return () => { window.clearTimeout(initialRefresh); window.clearInterval(interval) }
   }, [])
 
   const transactionRows = useMemo(() => {
@@ -487,7 +307,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#080b12] text-[#f3f0e8]">
       <div className="flex min-h-screen">
-        <aside className="hidden w-[232px] shrink-0 flex-col border-r border-white/[0.07] bg-[#0b0f17] lg:flex">
+        <aside className="sticky top-0 hidden h-screen w-[232px] shrink-0 flex-col overflow-y-auto border-r border-white/[0.07] bg-[#0b0f17] lg:flex">
           <div className="flex h-[76px] items-center gap-3 border-b border-white/[0.07] px-6">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#d6b878]/30 bg-[#d6b878]/[0.08] text-[#d6b878]">
               <Waypoints size={20} strokeWidth={1.6} />
@@ -510,6 +330,7 @@ function App() {
               {navItems.map(({ label, icon: Icon }) => (
                 <button
                   key={label}
+                  aria-current={activeNav === label ? 'page' : undefined}
                   onClick={() => setActiveNav(label)}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[12px] transition-all ${
                     activeNav === label
@@ -519,11 +340,7 @@ function App() {
                 >
                   <Icon size={16} strokeWidth={1.7} />
                   {label}
-                  {label === 'Investigations' && (
-                    <span className="ml-auto rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[9px] text-slate-400">
-                      {formatNumber(stats?.labels.illicit_labelled)}
-                    </span>
-                  )}
+
                 </button>
               ))}
             </nav>
@@ -615,7 +432,8 @@ function App() {
               </button>
 
               <button
-                onClick={() => void loadData(true)}
+                aria-label="Refresh dashboard statistics"
+                onClick={() => { setRefreshing(true); void loadData(); setWorkspaceRefresh(value => value + 1) }}
                 disabled={refreshing}
                 className="flex items-center gap-2 rounded-lg border border-[#d6b878]/25 bg-[#d6b878]/[0.07] px-3 py-2.5 text-[11px] font-medium text-[#e6ce98] transition hover:bg-[#d6b878]/[0.13] disabled:opacity-50"
               >
@@ -627,6 +445,9 @@ function App() {
               </button>
             </div>
           </header>
+          <nav aria-label="Mobile workspace navigation" className="flex gap-2 overflow-x-auto border-b border-white/[0.07] px-5 py-3 lg:hidden">
+            {navItems.map(({label}) => <button key={label} onClick={() => setActiveNav(label)} aria-current={activeNav === label ? 'page' : undefined} className={`shrink-0 rounded-lg px-3 py-2 text-[11px] ${activeNav === label ? 'bg-[#d6b878]/10 text-[#e4c987]' : 'text-slate-400'}`}>{label}</button>)}
+          </nav>
 
           {showAlerts && (
             <div className="mx-5 mt-4 rounded-xl border border-[#d6b878]/20 bg-[#d6b878]/[0.05] p-4 sm:mx-8">
@@ -636,9 +457,8 @@ function App() {
               </div>
               <p className="mt-2 text-xs leading-5 text-slate-400">
                 Elliptic labels are research-dataset annotations. The platform
-                does not independently establish criminal activity. Network
-                visualization and risk signals are illustrative until connected
-                to graph analysis and model inference.
+                does not independently establish criminal activity. Graph connections come from FalkorDB. Classifier outputs are
+                separately identified, evaluated historical-label predictions.
               </p>
               {apiStatus === 'error' && (
                 <p className="mt-2 text-xs text-rose-300">
@@ -701,7 +521,7 @@ function App() {
                   </span>
 
                   <button
-                    onClick={() => setActiveNav('Transaction graph')}
+                    onClick={() => { setActiveNav('Transaction graph'); document.getElementById('investigation-workspace')?.scrollIntoView({ behavior: 'smooth' }) }}
                     className="flex items-center gap-2 rounded-lg bg-[#d6b878] px-4 py-2.5 text-[11px] font-semibold text-[#14130f] transition hover:bg-[#e6cc91]"
                   >
                     <Network size={14} />
@@ -747,20 +567,16 @@ function App() {
               />
             </section>
 
-            <section className="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1.65fr)_minmax(300px,0.8fr)]">
+            <InvestigationWorkspace key={workspaceRefresh} activeNav={activeNav} seedId={SAMPLE_TX_ID} refreshKey={workspaceRefresh} onSelection={onSelection} />
+
+            <section className={activeNav === 'Overview' ? 'grid grid-cols-1 gap-4 xl:grid-cols-2' : 'hidden'}>
               <div className="min-w-0">
-                <SectionLabel>
-                  Network intelligence
-                  <span className="normal-case tracking-normal text-slate-600">
-                    {' '}/ illustrative visualization
-                  </span>
-                </SectionLabel>
-                <NetworkGraph />
+                <SectionLabel>Dataset labels</SectionLabel>
+                <LabelDistribution stats={stats} />
               </div>
 
               <div className="flex min-w-0 flex-col gap-4">
-                <SectionLabel>Dataset intelligence</SectionLabel>
-                <LabelDistribution stats={stats} />
+                <SectionLabel>Database status</SectionLabel>
 
                 <div className="rounded-xl border border-white/[0.07] bg-[#10151e] p-5">
                   <div className="flex items-start justify-between gap-3">
@@ -843,7 +659,8 @@ function App() {
                     <input
                       value={search}
                       onChange={(event) => setSearch(event.target.value)}
-                      placeholder="Search transaction ID..."
+                      aria-label="Filter loaded transaction records"
+                      placeholder="Filter loaded records..."
                       className="w-36 bg-transparent text-[11px] text-slate-200 outline-none placeholder:text-slate-600 sm:w-48"
                     />
                   </div>
@@ -852,6 +669,7 @@ function App() {
                     <SlidersHorizontal size={13} className="text-slate-500" />
                     <select
                       value={selectedFilter}
+                      aria-label="Filter loaded records by label"
                       onChange={(event) => setSelectedFilter(event.target.value)}
                       className="bg-transparent py-2 text-[11px] text-slate-300 outline-none"
                     >
@@ -871,13 +689,6 @@ function App() {
                   </button>
                 </div>
               </div>
-
-              {transactionError && (
-                <div className="mb-3 flex items-start gap-2 rounded-lg border border-rose-400/20 bg-rose-400/[0.05] p-3 text-[11px] leading-5 text-rose-200">
-                  <AlertTriangle size={14} className="mt-0.5 shrink-0" />
-                  {transactionError}
-                </div>
-              )}
 
               <div className="overflow-x-auto rounded-xl border border-white/[0.07] bg-[#10151e]">
                 <table className="w-full min-w-[700px] text-left">
@@ -938,7 +749,7 @@ function App() {
 
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] px-5 py-3 text-[10px] text-slate-500">
                   <span>
-                    Showing {transactionRows.length} loaded transaction records
+                    Showing {transactionRows.length} loaded transaction records (up to 20 per direction)
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span
@@ -968,7 +779,7 @@ function App() {
                       </div>
                     </div>
                     <a
-                      href={`http://127.0.0.1:8000/api/transactions/${encodeURIComponent(selectedTransaction.tx_id)}`}
+                      href={`${API_BASE_URL}/api/transactions/${encodeURIComponent(selectedTransaction.tx_id)}`}
                       target="_blank"
                       rel="noreferrer"
                       className="flex items-center gap-2 rounded-lg border border-white/[0.08] px-3 py-2 text-[10px] text-slate-300 transition hover:bg-white/[0.05]"
@@ -982,7 +793,7 @@ function App() {
                     <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
                       <div className="flex items-center gap-2 text-[10px] text-slate-500">
                         <ArrowDownRight size={13} />
-                        Incoming relationships
+                        Loaded incoming neighbors (max 20)
                       </div>
                       <div className="mt-2 text-xl font-semibold text-[#f3f0e8]">
                         {neighbors.filter((item) => item.direction === 'Incoming').length}
@@ -991,7 +802,7 @@ function App() {
                     <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
                       <div className="flex items-center gap-2 text-[10px] text-slate-500">
                         <ArrowUpRight size={13} />
-                        Outgoing relationships
+                        Loaded outgoing neighbors (max 20)
                       </div>
                       <div className="mt-2 text-xl font-semibold text-[#f3f0e8]">
                         {neighbors.filter((item) => item.direction === 'Outgoing').length}
