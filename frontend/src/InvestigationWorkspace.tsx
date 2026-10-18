@@ -74,14 +74,21 @@ function readCases(): Case[] {
 export default function InvestigationWorkspace({
   activeNav,
   seedId,
+  requestedId,
+  selectionKey,
   refreshKey,
   onSelection,
 }: {
   activeNav: string
   seedId: string
+  requestedId: string
+  selectionKey: number
   refreshKey: number
   onSelection: (data: Evidence | null) => void
 }) {
+  const [copilotOpen, setCopilotOpen] = useState(false)
+  const [immersive, setImmersive] = useState(false)
+  const assistantTrigger = useRef<HTMLButtonElement>(null)
   const [id, setId] = useState(seedId)
   const [attempt, setAttempt] = useState(0)
   const [input, setInput] = useState(seedId)
@@ -130,6 +137,16 @@ export default function InvestigationWorkspace({
     setMessages([])
   }, [])
 
+  useEffect(() => {
+    if (selectionKey > 0) void Promise.resolve().then(() => selectTransaction(requestedId))
+  }, [requestedId, selectionKey, selectTransaction])
+  useEffect(() => {
+    if (!copilotOpen) return
+    document.getElementById('copilot-question')?.focus()
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') { setCopilotOpen(false); assistantTrigger.current?.focus() } }
+    window.addEventListener('keydown', close)
+    return () => window.removeEventListener('keydown', close)
+  }, [copilotOpen])
   useEffect(() => {
     let alive = true
     const number = ++requestNumber.current
@@ -259,6 +276,7 @@ export default function InvestigationWorkspace({
   }
   async function ask(prompt = question) {
     if (!prompt.trim() || asking) return
+    if (prompt.toLowerCase().includes('multi-hop')) {setImmersive(true);setDepth(3)}
     setAsking(true)
     setQuestion('')
     const context = id
@@ -320,9 +338,10 @@ export default function InvestigationWorkspace({
   return (
     <section
       id="investigation-workspace"
-      className="investigation-workspace"
+      className={`investigation-workspace ${immersive ? 'immersive-workspace' : ''}`}
       aria-label="Investigation workspace"
     >
+      <div className="context-toolbar"><span>FALKORDB / ELLIPTIC RESEARCH</span><div><button className="fw-button" aria-pressed={immersive} onClick={() => setImmersive(!immersive)}>{immersive ? 'Exit focus layout' : 'Focus layout'}</button><button ref={assistantTrigger} className="fw-button gold" aria-expanded={copilotOpen} aria-controls="copilot-panel" onClick={() => setCopilotOpen(!copilotOpen)}><MessageSquare size={14}/> Evidence copilot</button></div></div>
       <div className="workspace-heading">
         <div>
           <span className="eyebrow">INVESTIGATION WORKSPACE</span>
@@ -415,8 +434,7 @@ export default function InvestigationWorkspace({
       )}
       {loading && (
         <div className="fw-loading" role="status">
-          <LoaderCircle className="spin" size={22} /> Querying transaction,
-          graph and evidence…
+          <div className="loading-skeleton" aria-hidden="true"><i/><i/><i/></div><span>Querying transaction, graph and evidence…</span>
         </div>
       )}
 
@@ -424,7 +442,7 @@ export default function InvestigationWorkspace({
         <article className="fw-panel graph-panel">
           <div className="panel-heading">
             <div>
-              <h3>Live transaction graph</h3>
+              <h3>Transaction flow graph</h3>
               <p>
                 Click a node to investigate it · drag to move · scroll to zoom
               </p>
@@ -462,7 +480,7 @@ export default function InvestigationWorkspace({
             <span>◆ Illicit-labelled</span>
             <span>● Licit-labelled</span>
             <span>■ Unknown</span>
-            <span>→ Bitcoin flow</span>
+            <span>→ Bitcoin flow</span><span>White outline: selected</span><span>Cyan: incoming · violet: outgoing</span>
           </div>
           {graph ? (
             <>
@@ -664,7 +682,7 @@ export default function InvestigationWorkspace({
         </>
       )}
 
-      {activeNav === 'Risk intelligence' && (
+      {(activeNav === 'Risk intelligence' || activeNav === 'Overview') && (
         <article className="fw-panel">
           <div className="panel-heading">
             <div>
@@ -682,6 +700,7 @@ export default function InvestigationWorkspace({
                 {model.algorithm} · train {model.split?.train} · threshold
                 selection {model.split?.validation} · test {model.split?.test}
               </p>
+              <p className="fw-muted">Model version: {model.version || 'Not reported'} · dataset time-step coverage: {timeline.length} returned steps</p>
               <div className="model-metrics">
                 {(
                   ['precision', 'recall', 'f1', 'average_precision'] as const
@@ -779,7 +798,8 @@ export default function InvestigationWorkspace({
         </article>
       )}
 
-      <article className="fw-panel copilot-panel">
+      <article id="copilot-panel" className={`fw-panel copilot-panel ${copilotOpen ? 'copilot-open' : ''}`} hidden={!copilotOpen} aria-label="Evidence copilot panel">
+        <button className="fw-button copilot-close" onClick={() => {setCopilotOpen(false);assistantTrigger.current?.focus()}}>Close copilot ×</button>
         <div className="panel-heading">
           <div>
             <h3>
