@@ -242,7 +242,7 @@ def copilot_endpoint(body: CopilotRequest):
                       f"{counts.get('unknown', 0):,} unknown. [E1]")
             tools = ['dataset_label_counts']
             sources = [{'id': 'E1', 'title': 'Live dataset statistics', 'endpoint': '/api/stats'}]
-        elif any(word in question for word in ('model', 'accuracy', 'precision', 'recall', 'trained')):
+        elif not (tx_id and any(word in question for word in ('summar', 'risk', 'evidence', 'neighbor', 'neighbour', 'connection', 'investigat', 'label', 'explain'))) and any(word in question for word in ('model', 'accuracy', 'precision', 'recall', 'trained')):
             status = model_status()
             if status['available']:
                 metrics = status['test_metrics']

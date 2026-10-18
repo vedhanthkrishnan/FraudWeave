@@ -604,10 +604,10 @@ export default function InvestigationWorkspace({
                       {data.risk.model.evaluation_context}
                     </p>
                     <p className="fw-muted">
-                      A model score is not a calibrated fraud probability or
-                      confidence level. The historical label is never
-                      overwritten.
-                    </p>
+  {data.risk.model.note ||
+    'A model score is not a calibrated fraud probability or confidence level.'}
+  {' '}The historical label is never overwritten.
+</p>
                   </>
                 ) : (
                   <p>{data.risk.model.reason}</p>

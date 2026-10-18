@@ -1,7 +1,7 @@
 {
   "version": "elliptic-hgb-v1",
   "algorithm": "HistGradientBoostingClassifier",
-  "trained_at": "2026-10-18T05:28:42.943464+00:00",
+  "trained_at": "2026-10-18T07:27:10.799361+00:00",
   "feature_count": 165,
   "threshold": 0.8140831022121674,
   "split": {

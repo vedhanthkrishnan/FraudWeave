@@ -39,3 +39,91 @@ class TraceTests(unittest.TestCase):
         self.assertEqual(len(result['findings']), 8)
         self.assertEqual(len(result['trace']), 1)
         self.assertTrue(result['limited'])
+
+    def test_finds_labelled_evidence_exactly_three_hops_away(self):
+        edges = [('1', '2'), ('2', '3'), ('3', '4')]
+
+        def neighborhood(tx_id, **kwargs):
+            return {
+                'incoming': [
+                    self.node(a) for a, b in edges if b == tx_id
+                ],
+                'outgoing': [
+                    self.node(b) for a, b in edges if a == tx_id
+                ]
+            }
+
+        result = investigate('1', self.node, neighborhood)
+
+        self.assertEqual(len(result['findings']), 1)
+        self.assertEqual(
+            result['findings'][0]['path'],
+            ['1', '2', '3', '4']
+        )
+        self.assertEqual(
+            result['findings'][0]['edges'],
+            [
+                {'source': '1', 'target': '2'},
+                {'source': '2', 'target': '3'},
+                {'source': '3', 'target': '4'}
+            ]
+        )
+
+    def test_finds_multiple_paths_to_same_labelled_transaction(self):
+        edges = [
+            ('1', '2'),
+            ('1', '3'),
+            ('2', '4'),
+            ('3', '4')
+        ]
+
+        def neighborhood(tx_id, **kwargs):
+            return {
+                'incoming': [
+                    self.node(a) for a, b in edges if b == tx_id
+                ],
+                'outgoing': [
+                    self.node(b) for a, b in edges if a == tx_id
+                ]
+            }
+
+        result = investigate('1', self.node, neighborhood)
+
+        self.assertEqual(len(result['findings']), 2)
+        self.assertEqual(
+            [finding['path'] for finding in result['findings']],
+            [
+                ['1', '2', '4'],
+                ['1', '3', '4']
+            ]
+        )
+
+    def test_finds_alternate_paths_through_shared_intermediate(self):
+        edges = [
+            ('1', '2'),
+            ('1', '3'),
+            ('2', '5'),
+            ('3', '5'),
+            ('5', '4')
+        ]
+
+        def neighborhood(tx_id, **kwargs):
+            return {
+                'incoming': [
+                    self.node(a) for a, b in edges if b == tx_id
+                ],
+                'outgoing': [
+                    self.node(b) for a, b in edges if a == tx_id
+                ]
+            }
+
+        result = investigate('1', self.node, neighborhood)
+
+        self.assertEqual(len(result['findings']), 2)
+        self.assertEqual(
+            [finding['path'] for finding in result['findings']],
+            [
+                ['1', '2', '5', '4'],
+                ['1', '3', '5', '4']
+            ]
+        )
