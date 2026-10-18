@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import cytoscape from 'cytoscape'
 import type { GraphData } from './api'
 
@@ -9,6 +9,7 @@ export default function LiveGraph({
   data: GraphData
   onSelect: (id: string) => void
 }) {
+  const [hover, setHover] = useState('Hover a node for metadata · arrows show source → target')
   const container = useRef<HTMLDivElement>(null)
   const graph = useRef<cytoscape.Core | null>(null)
   const select = useRef(onSelect)
@@ -26,6 +27,7 @@ export default function LiveGraph({
             id: node.tx_id,
             label: node.tx_id,
             researchLabel: node.label,
+            timeStep: node.time_step,
             root: node.tx_id === data.root ? 1 : 0,
           },
         })),
@@ -89,6 +91,9 @@ export default function LiveGraph({
             'arrow-scale': 0.9,
           },
         },
+        {selector: '.incoming', style: {'line-color':'#68d9ed','target-arrow-color':'#68d9ed',width:3}},
+        {selector: '.outgoing', style: {'line-color':'#b6a3f5','target-arrow-color':'#b6a3f5',width:3}},
+        {selector: '.muted', style: {opacity:0.35}},
         { selector: 'node:active', style: { 'overlay-opacity': 0.08 } },
       ],
       layout: {
@@ -103,6 +108,12 @@ export default function LiveGraph({
       maxZoom: 3,
     })
     graph.current = cy
+    const root=cy.getElementById(data.root)
+    root.incomers('edge').addClass('incoming'); root.outgoers('edge').addClass('outgoing')
+    cy.edges().not(root.connectedEdges()).addClass('muted')
+    cy.on('mouseover', 'node', event => {const n=event.target;setHover(`${n.id()} · ${n.data('researchLabel').replaceAll('_',' ')} · time step ${n.data('timeStep')}`)})
+    cy.on('mouseout', 'node', () => setHover('Hover a node for metadata · arrows show source → target'))
+    cy.on('tap', event => {if(event.target===cy) cy.elements().unselect()})
     cy.on('tap', 'node', (event) => {
       select.current(event.target.id())
     })
@@ -126,17 +137,19 @@ export default function LiveGraph({
         role="img"
         aria-label={`Live transaction graph: ${data.nodes.length} nodes and ${data.edges.length} directed relationships. Use the accessible node list below to select transactions.`}
       />
+      <div className="graph-hover" aria-live="off">{hover}</div>
       <div className="graph-footer">
         <span>
           {data.nodes.length} nodes · {data.edges.length} arrows · selected node
           has a white border
         </span>
+        <div className="graph-tools"><button className="fw-button" onClick={() => {const cy=graph.current;if(cy)cy.layout({name:'breadthfirst',directed:true,roots:[data.root],padding:50,animate:false}).run()}}>Reset layout</button><button className="fw-button" onClick={() => {const cy=graph.current;if(cy)cy.fit(cy.getElementById(data.root).closedNeighborhood(),50)}}>Focus selected</button>
         <button
           className="fw-button"
           onClick={() => graph.current?.fit(undefined, 40)}
         >
           Fit graph
-        </button>
+        </button></div>
       </div>
       <details className="node-list">
         <summary>Accessible transaction list ({data.nodes.length})</summary>

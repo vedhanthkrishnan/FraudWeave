@@ -1,0 +1,33 @@
+/* Shared intelligence workspace tokens. Research-label colors keep their semantic meaning. */
+:root{--fw-bg:#080d17;--fw-surface:#101a29;--fw-raised:#142237;--fw-border:#9fbcdc26;--fw-accent:#68d9ed;--fw-secondary:#b6a3f5;--fw-text:#edf4fa;--fw-muted:#a3b4c9;--fw-radius:12px;font-variant-numeric:tabular-nums}
+.premium-app{color:var(--fw-text);background:var(--fw-bg)}
+.premium-app aside{transition:width .2s ease;background:#0b1220}
+.premium-app aside nav button[aria-current=page]{color:var(--fw-accent);background:#68d9ed0b;border-color:#68d9ed35;box-shadow:inset 2px 0 var(--fw-accent)}
+.collapse-control{margin:14px 16px 0;color:var(--fw-muted);border:1px solid var(--fw-border);border-radius:7px;padding:7px;font-size:11px;text-align:center}
+.sidebar-collapsed aside{width:78px}.sidebar-collapsed aside>div:not(:nth-child(3)){display:none}.sidebar-collapsed aside .nav-label,.sidebar-collapsed aside .px-3.text-\[9px\]{display:none}.sidebar-collapsed aside nav button{justify-content:center;padding:13px 8px}.sidebar-collapsed .collapse-control{margin:20px 12px 0}
+.premium-app .eyebrow,.premium-app .evidence-sources a{color:var(--fw-accent)}
+.premium-app .fw-panel{background:var(--fw-surface);border-color:var(--fw-border);box-shadow:0 9px 28px #00000016}
+.premium-app .fw-button.gold{background:var(--fw-accent);border-color:var(--fw-accent);color:#081321}.premium-app .fw-button.gold:hover{background:#a5ecf6}
+.premium-app .fw-button:not(:disabled):active{transform:translateY(1px)}
+.premium-app .workspace-heading{border-color:var(--fw-border)}.premium-app .workspace-heading h2{font-size:clamp(26px,3vw,36px)}
+.premium-app .investigation-search{border-left-color:var(--fw-accent);background:#0e1928}
+.premium-app .fw-muted,.premium-app .graph-footer{color:var(--fw-muted)}
+.premium-app .fw-notice{background:#d6b87808}.premium-app .source-badge{color:#9de5c9}
+.context-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.context-toolbar>span{font:10px ui-monospace,monospace;color:var(--fw-muted);letter-spacing:.13em}.context-toolbar>div{display:flex;gap:8px}
+.immersive-workspace .live-graph{height:62vh;min-height:360px}.immersive-workspace .evidence-grid{grid-template-columns:1fr}.immersive-workspace .workspace-heading{padding-bottom:8px}.immersive-workspace .workspace-heading h2{font-size:25px}
+.premium-app .copilot-panel{position:fixed;right:18px;top:90px;bottom:18px;width:min(500px,calc(100vw - 36px));z-index:40;overflow:auto;border:1px solid #68d9ed55;box-shadow:-20px 0 60px #0007;animation:panel-enter .18s ease}.copilot-panel[hidden]{display:none}.copilot-close{margin-bottom:20px}.copilot-panel .copilot-messages{max-height:none}.copilot-panel .copilot-input{position:sticky;bottom:0;background:var(--fw-surface);padding:12px 0}.copilot-panel .trace-details{overflow-wrap:anywhere}
+.record-link{color:var(--fw-accent);padding:5px 0;text-align:left}.record-link:hover{text-decoration:underline}.premium-app tr:has(.record-link):hover{background:#68d9ed08}
+.graph-tools{display:flex;gap:6px;flex-wrap:wrap}.graph-hover{padding:10px 20px;background:#121f31;color:#b6c9df;font:11px/1.7 ui-monospace,monospace;min-height:38px}
+.loading-skeleton{display:flex;gap:8px;width:120px}.loading-skeleton i{height:28px;flex:1;border-radius:5px;background:#68d9ed15;animation:skeleton-pulse 1s ease-in-out infinite alternate}.loading-skeleton i:nth-child(2){animation-delay:.15s}.loading-skeleton i:nth-child(3){animation-delay:.3s}
+.system-view{display:grid;gap:22px}.system-view>h2{font-size:clamp(26px,3vw,40px);letter-spacing:-.035em}.system-view>p{color:var(--fw-muted);font-size:12px}.system-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.system-grid h3{margin:18px 0 10px;font-size:13px;color:var(--fw-muted)}.system-grid strong{font-size:23px;font-weight:500}.system-grid svg{color:var(--fw-accent)}.system-grid p{font-size:11px;line-height:1.8;color:var(--fw-muted);margin-top:12px}.system-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.metric-strip>div{transition:border-color .18s,transform .18s}.metric-strip>div:hover{border-color:#68d9ed44;transform:translateY(-2px)}
+:focus-visible{outline-color:var(--fw-accent)}
+@keyframes panel-enter{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}@keyframes skeleton-pulse{to{background:#68d9ed38}}
+@media(min-width:1600px){.premium-app .copilot-panel{width:460px}.premium-app:has(.copilot-open) main{padding-right:480px}}
+@media(max-width:800px){.system-grid{grid-template-columns:1fr}.context-toolbar>span{display:none}.premium-app .copilot-panel{top:80px;right:8px;bottom:8px;width:calc(100vw - 16px)}.immersive-workspace .live-graph{height:420px}}
+@media(prefers-reduced-motion:reduce){.premium-app *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.timeline-table{overflow:auto;max-height:260px}.timeline-table table{width:100%;border-collapse:collapse;text-align:left;font-size:11px}.timeline-table th,.timeline-table td{padding:9px;border-bottom:1px solid var(--fw-border);white-space:nowrap}.timeline-table th{color:var(--fw-accent)}
+.premium-app aside nav button{min-height:44px}
+@media(min-width:1100px){.premium-app:has(.copilot-open) main{padding-right:400px}.premium-app .copilot-panel{width:380px;right:12px}.premium-app:has(.copilot-open) .graph-controls{flex-wrap:wrap}.premium-app:has(.copilot-open) .evidence-grid{grid-template-columns:1fr}}
+.premium-app tr[aria-selected=true]{background:#68d9ed0a;box-shadow:inset 2px 0 var(--fw-accent)}
+.premium-app nav[aria-label="Mobile workspace navigation"] button[aria-current=page]{color:var(--fw-accent);background:#68d9ed12}

@@ -111,6 +111,7 @@ export interface Evidence {
   dataset: { name: string; url: string; license: string; context: string }
 }
 export interface ModelStatus {
+  version?: string
   available: boolean
   algorithm?: string
   reason?: string

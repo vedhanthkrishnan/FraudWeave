@@ -1,3 +1,4 @@
+import { useReducedMotion } from 'motion/react'
 import {
   Area,
   AreaChart,
@@ -16,6 +17,7 @@ export function NeighborChart({
 }: {
   data: { label: string; count: number; fill: string }[]
 }) {
+  const reduced = useReducedMotion()
   return (
     <div
       className="neighbor-chart"
@@ -43,7 +45,7 @@ export function NeighborChart({
               color: '#f1f5f9',
             }}
           />
-          <Bar dataKey="count" radius={[0, 4, 4, 0]} />
+          <Bar isAnimationActive={!reduced} dataKey="count" radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -60,10 +62,11 @@ export function TimelineChart({
     unknown: number
   }[]
 }) {
+  const reduced = useReducedMotion()
   return (
     <div
       className="timeline-chart"
-      role="img"
+      role="group"
       aria-label="Stacked dataset counts across 49 historical time steps"
     >
       <ResponsiveContainer width="100%" height={260}>
@@ -78,21 +81,21 @@ export function TimelineChart({
             }}
           />
           <Legend />
-          <Area
+          <Area isAnimationActive={!reduced}
             dataKey="unknown"
             stackId="1"
             fill="#d6b878"
             stroke="#d6b878"
             fillOpacity={0.3}
           />
-          <Area
+          <Area isAnimationActive={!reduced}
             dataKey="licit_labelled"
             stackId="1"
             fill="#6ee7b7"
             stroke="#6ee7b7"
             fillOpacity={0.5}
           />
-          <Area
+          <Area isAnimationActive={!reduced}
             dataKey="illicit_labelled"
             stackId="1"
             fill="#fb7185"
@@ -100,6 +103,7 @@ export function TimelineChart({
           />
         </AreaChart>
       </ResponsiveContainer>
+      <details className="node-list"><summary>Accessible timeline values ({data.length} time steps)</summary><div className="timeline-table"><table><thead><tr><th>Step</th><th>Illicit-labelled</th><th>Licit-labelled</th><th>Unknown</th></tr></thead><tbody>{data.map(step=><tr key={step.time_step}><td>{step.time_step}</td><td>{step.illicit_labelled.toLocaleString()}</td><td>{step.licit_labelled.toLocaleString()}</td><td>{step.unknown.toLocaleString()}</td></tr>)}</tbody></table></div></details>
     </div>
   )
 }

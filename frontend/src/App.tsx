@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import InvestigationWorkspace from './InvestigationWorkspace'
-import { motion } from 'motion/react'
+import './premium.css'
+import SystemPanel from './SystemPanel'
+import { motion, MotionConfig } from 'motion/react'
 import {
   Activity,
   ArrowDownRight,
@@ -52,6 +54,7 @@ const navItems: { label: string; icon: LucideIcon }[] = [
   { label: 'Transaction graph', icon: Network },
   { label: 'Investigations', icon: Fingerprint },
   { label: 'Risk intelligence', icon: ShieldAlert },
+  { label: 'System', icon: Database },
 ]
 
 function formatNumber(value: number | undefined): string {
@@ -212,6 +215,8 @@ function LabelDistribution({ stats }: { stats: FraudWeaveStats | null }) {
 
 function App() {
   const [activeNav, setActiveNav] = useState('Overview')
+  const [collapsed, setCollapsed] = useState(false)
+  const [target, setTarget] = useState({id: SAMPLE_TX_ID, key: 0})
   const [search, setSearch] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('All records')
   const [showAlerts, setShowAlerts] = useState(false)
@@ -305,9 +310,9 @@ function App() {
   const apiConnected = apiStatus === 'connected'
 
   return (
-    <div className="min-h-screen bg-[#080b12] text-[#f3f0e8]">
+    <MotionConfig reducedMotion="user"><div className={`premium-app min-h-screen bg-[#080b12] text-[#f3f0e8] ${collapsed ? 'sidebar-collapsed' : ''}`} >
       <div className="flex min-h-screen">
-        <aside className="sticky top-0 hidden h-screen w-[232px] shrink-0 flex-col overflow-y-auto border-r border-white/[0.07] bg-[#0b0f17] lg:flex">
+        <aside aria-label="Primary navigation" className="sticky top-0 hidden h-screen w-[232px] shrink-0 flex-col overflow-y-auto border-r border-white/[0.07] bg-[#0b0f17] lg:flex">
           <div className="flex h-[76px] items-center gap-3 border-b border-white/[0.07] px-6">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#d6b878]/30 bg-[#d6b878]/[0.08] text-[#d6b878]">
               <Waypoints size={20} strokeWidth={1.6} />
@@ -322,6 +327,7 @@ function App() {
             </div>
           </div>
 
+          <button className="collapse-control" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>{collapsed ? '→' : '← Collapse workspace'}</button>
           <div className="px-4 pt-7">
             <div className="mb-3 px-3 text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-600">
               Workspace
@@ -330,6 +336,8 @@ function App() {
               {navItems.map(({ label, icon: Icon }) => (
                 <button
                   key={label}
+                  title={label}
+                  aria-label={label}
                   aria-current={activeNav === label ? 'page' : undefined}
                   onClick={() => setActiveNav(label)}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[12px] transition-all ${
@@ -339,7 +347,7 @@ function App() {
                   }`}
                 >
                   <Icon size={16} strokeWidth={1.7} />
-                  {label}
+                  <span className="nav-label">{label}</span>
 
                 </button>
               ))}
@@ -415,7 +423,7 @@ function App() {
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               <div className="hidden items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-[10px] text-slate-500 md:flex">
                 <Command size={12} />
-                <span>Local research environment</span>
+                <span>Elliptic · historical research</span>
               </div>
 
               <button
@@ -469,7 +477,7 @@ function App() {
           )}
 
           <div className="mx-auto max-w-[1600px] space-y-7 p-5 sm:p-8">
-            <motion.section
+            <motion.section className={activeNav !== 'Overview' ? 'hidden' : 'overview-hero'}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45 }}
@@ -514,7 +522,7 @@ function App() {
                       }`}
                     />
                     {apiConnected
-                      ? 'Live database connection'
+                      ? 'Backend connected · historical data'
                       : apiStatus === 'error'
                         ? 'API connection issue'
                         : 'Connecting to database'}
@@ -532,7 +540,7 @@ function App() {
               </div>
             </motion.section>
 
-            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <section className={activeNav === 'Overview' ? "metric-strip grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" : "hidden"}>
               <MetricCard
                 label="Transactions in dataset"
                 value={formatNumber(stats?.total_transactions)}
@@ -567,7 +575,8 @@ function App() {
               />
             </section>
 
-            <InvestigationWorkspace key={workspaceRefresh} activeNav={activeNav} seedId={SAMPLE_TX_ID} refreshKey={workspaceRefresh} onSelection={onSelection} />
+            <div hidden={activeNav === 'System'}><InvestigationWorkspace activeNav={activeNav} seedId={SAMPLE_TX_ID} requestedId={target.id} selectionKey={target.key} refreshKey={workspaceRefresh} onSelection={onSelection} /></div>
+            {activeNav === 'System' && <SystemPanel refreshKey={workspaceRefresh} />}
 
             <section className={activeNav === 'Overview' ? 'grid grid-cols-1 gap-4 xl:grid-cols-2' : 'hidden'}>
               <div className="min-w-0">
@@ -644,7 +653,7 @@ function App() {
               </div>
             </section>
 
-            <section>
+            <section hidden={activeNav === 'System'}>
               <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div>
                   <SectionLabel>Transaction investigation</SectionLabel>
@@ -704,13 +713,14 @@ function App() {
                     {transactionRows.map((tx, index) => (
                       <motion.tr
                         key={`${tx.tx_id}-${tx.direction}`}
+                        aria-selected={tx.tx_id === selectedTransaction?.tx_id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: index * 0.04 }}
                         className="border-b border-white/[0.045] last:border-0 transition hover:bg-white/[0.025]"
                       >
                         <td className="px-5 py-4 font-mono text-[11px] text-slate-300">
-                          {tx.tx_id}
+                          <button className="record-link" onClick={() => {setTarget({id:tx.tx_id,key:target.key+1});setActiveNav('Transaction graph');document.getElementById('investigation-workspace')?.scrollIntoView({behavior:'smooth'})}} aria-label={`Investigate transaction ${tx.tx_id}`}>{tx.tx_id} ↗</button>
                         </td>
                         <td className="px-5 py-4 text-[11px] text-slate-300">
                           {tx.direction === 'Selected transaction'
@@ -827,7 +837,7 @@ function App() {
           </div>
         </main>
       </div>
-    </div>
+    </div></MotionConfig>
   )
 }
 
