@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.database.db import check_database, get_graph
+from src.investigation import router, neighbors, guarded
 
 app = FastAPI(
     title="FraudWeave API",
@@ -10,7 +11,7 @@ app = FastAPI(
         "Bitcoin transaction graph investigation "
         "and risk intelligence API."
     ),
-    version="0.2.0",
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -23,6 +24,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(router)
 
 
 @app.get("/")
@@ -144,52 +147,6 @@ def get_transaction_neighbors(
     tx_id: str,
     limit: int = Query(default=20, ge=1, le=100),
 ):
-    """Return the connected transactions around one transaction."""
-    try:
-        graph = get_graph()
-
-        result = graph.query(
-            """
-            MATCH (t:Transaction {tx_id: $tx_id})
-            OPTIONAL MATCH (t)-[:TRANSACTION_FLOW]->(outgoing:Transaction)
-            WITH t, collect(DISTINCT outgoing)[0..$limit] AS outgoing_nodes
-            OPTIONAL MATCH (incoming:Transaction)-[:TRANSACTION_FLOW]->(t)
-            WITH t, outgoing_nodes,
-                 collect(DISTINCT incoming)[0..$limit] AS incoming_nodes
-            RETURN
-                t.tx_id AS tx_id,
-                [n IN outgoing_nodes WHERE n IS NOT NULL |
-                    {tx_id: n.tx_id, label: n.label, time_step: n.time_step}
-                ] AS outgoing,
-                [n IN incoming_nodes WHERE n IS NOT NULL |
-                    {tx_id: n.tx_id, label: n.label, time_step: n.time_step}
-                ] AS incoming
-            """,
-            {"tx_id": tx_id, "limit": limit},
-        )
-
-        if not result.result_set:
-            raise HTTPException(
-                status_code=404,
-                detail="Transaction not found in the imported dataset.",
-            )
-
-        tx_id_result, outgoing, incoming = result.result_set[0]
-
-        return {
-            "status": "success",
-            "transaction_id": tx_id_result,
-            "outgoing": outgoing or [],
-            "incoming": incoming or [],
-            "limit_per_direction": limit,
-        }
-
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Could not retrieve transaction neighbors: {exc}",
-        ) from exc
-
-
+    """Bound each directional query before returning connected transactions."""
+    with guarded():
+        return neighbors(tx_id, limit)

@@ -1,0 +1,49 @@
+{
+  "version": "elliptic-hgb-v1",
+  "algorithm": "HistGradientBoostingClassifier",
+  "trained_at": "2026-10-18T05:28:42.943464+00:00",
+  "feature_count": 165,
+  "threshold": 0.8140831022121674,
+  "split": {
+    "train": "1\u201334",
+    "validation": "35\u201339",
+    "test": "40\u201349"
+  },
+  "partitions": {
+    "train": {
+      "records": 29894,
+      "illicit_labelled": 3462
+    },
+    "validation": {
+      "records": 5486,
+      "illicit_labelled": 447
+    },
+    "test": {
+      "records": 11184,
+      "illicit_labelled": 636
+    }
+  },
+  "test_metrics": {
+    "precision": 0.872093023255814,
+    "recall": 0.589622641509434,
+    "f1": 0.7035647279549718,
+    "average_precision": 0.6703624281352198,
+    "roc_auc": 0.8961414486158513,
+    "confusion_matrix": [
+      [
+        10493,
+        55
+      ],
+      [
+        261,
+        375
+      ]
+    ]
+  },
+  "limitations": [
+    "Predicts historical research labels; not wrongdoing or a calibrated fraud probability.",
+    "Evaluated only on labelled records, not the unknown-label population.",
+    "Anonymized aggregate features and historical distribution limit real-world generalization.",
+    "Records in steps 1\u201334 were used for training; their scores are in-sample."
+  ]
+}

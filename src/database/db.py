@@ -1,12 +1,15 @@
 
 import os
+from functools import lru_cache
+from pathlib import Path
 
 from dotenv import load_dotenv
 from falkordb import FalkorDB
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parents[2] / '.env')
 
 
+@lru_cache(maxsize=1)
 def get_graph():
     """Return a connection to the FraudWeave FalkorDB graph."""
     host = os.getenv("FALKORDB_HOST", "localhost")
@@ -18,6 +21,8 @@ def get_graph():
         host=host,
         port=port,
         password=password,
+        socket_connect_timeout=3,
+        socket_timeout=15,
     )
 
     return db.select_graph(graph_name)
